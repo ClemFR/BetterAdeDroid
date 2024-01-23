@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">BetterAde</string>
+    <string name="date">Date</string>
+    <string name="apres">➡️</string>
+    <string name="avant">⬅️</string>
+    <string name="select_type">Type de sélection :</string>
+    <string name="search">Rechercher</string>
+    <string name="hint_search">Ecrire pour commencer la recherche</string>
+    <string name="valider">Valider</string>
+    <string name="annuler">Annuler</string>
+</resources>

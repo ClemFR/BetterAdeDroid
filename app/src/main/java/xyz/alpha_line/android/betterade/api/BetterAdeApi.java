@@ -5,9 +5,9 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.android.volley.Request;
+import com.islandparadise14.mintable.MinTimeTableView;
+import com.islandparadise14.mintable.model.ScheduleEntity;
 
 import org.json.JSONArray;
 
@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import xyz.alpha_line.android.betterade.CustomSchedule;
 import xyz.alpha_line.android.betterade.MainActivity;
 import xyz.alpha_line.android.betterade.recyclerview.CoursInfos;
 
@@ -25,7 +26,7 @@ public class BetterAdeApi {
     public static String API_BASE_URL = "https://api.ade.alpha-line.xyz/";
     public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.FRANCE);
 
-    public static void recupereAfficheCoursDay(String idPromo, Date date, List<CoursInfos> coursInfosList, RecyclerView rv, int typeRecherche) {
+    public static void recupereAfficheCoursDay(String idPromo, Date date, ArrayList<ScheduleEntity> coursInfosList, MinTimeTableView timetable, int typeRecherche) {
         String url_path = API_BASE_URL;
         if (typeRecherche == 0) {
             url_path += "day/" + idPromo + "/" + DATE_FORMAT.format(date);
@@ -46,7 +47,7 @@ public class BetterAdeApi {
                 null,
                 Request.Method.GET,
                 response -> {
-                    afficheListeCours(response, coursInfosList, rv);
+                    afficheListeCours(response, coursInfosList, timetable);
                 },
                 error -> {
                     error.printStackTrace();
@@ -55,25 +56,23 @@ public class BetterAdeApi {
         );
     }
 
-    public static void afficheListeCours(JSONArray arr, List<CoursInfos> liste, RecyclerView rv) {
-        List<CoursInfos> new_liste = new ArrayList<>();
+    public static void afficheListeCours(JSONArray arr, ArrayList<ScheduleEntity> liste, MinTimeTableView timetable) {
+        ArrayList<ScheduleEntity> new_liste = new ArrayList<>();
+
         try {
-            new_liste = CoursInfos.fromJSONArray(arr);
+            new_liste = CustomSchedule.fromJSONArray(arr);
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
             System.out.println(arr.toString());
         }
 
-        // Tri de la liste par heure de début
-        new_liste.sort((o1, o2) -> o1.heureDebut.compareTo(o2.heureDebut));
-
         liste.clear();
         liste.addAll(new_liste);
 
         try {
             MainActivity.instance.runOnUiThread(() -> {
-                rv.getAdapter().notifyDataSetChanged();
+                timetable.updateSchedules(liste);
             });
         } catch (Exception e) {
             e.printStackTrace();

@@ -64,7 +64,7 @@ public class DayViewContainer extends ViewContainer {
                 v.setSelected(true);
 
                 // On envoi a la mainactivity le signal pour qu'elle mette a jour la liste des cours
-                MainActivity.instance.updateRecyclerView();
+                MainActivity.instance.updateTimeTable();
             }
         });
     }

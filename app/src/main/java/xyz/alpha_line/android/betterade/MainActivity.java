@@ -1,25 +1,20 @@
 package xyz.alpha_line.android.betterade;
 
-import static com.kizitonwose.calendar.core.ExtensionsKt.daysOfWeek;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.islandparadise14.mintable.MinTimeTableView;
+import com.islandparadise14.mintable.model.ScheduleEntity;
 import com.kizitonwose.calendar.core.WeekDay;
 import com.kizitonwose.calendar.view.WeekCalendarView;
 import com.kizitonwose.calendar.view.WeekDayBinder;
@@ -29,13 +24,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import kotlin.Unit;
 import xyz.alpha_line.android.betterade.api.BetterAdeApi;
 import xyz.alpha_line.android.betterade.containers.DayViewContainer;
-import xyz.alpha_line.android.betterade.recyclerview.CoursAdapter;
-import xyz.alpha_line.android.betterade.recyclerview.CoursInfos;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,12 +35,14 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView monthText;
     private WeekCalendarView calendarView;
-
-    public RecyclerView rv;
-    public List<CoursInfos> coursListe;
+    private MinTimeTableView timetable;
+    private ArrayList<ScheduleEntity> listeCours;
+    private ActivityResultLauncher<Intent> itemSelectorResultLauncher;
 
     private String promosRecherche = "";
     private int typeRecherche = -1;
+
+
 
     public static String PREFERENCES_PROMOS = "promos";
     public static String PREFERENCE_TYPE_RECHERCHE = "type";
@@ -63,9 +57,12 @@ public class MainActivity extends AppCompatActivity {
 
         monthText = findViewById(R.id.monthText);
         calendarView = findViewById(R.id.calendarView);
+        timetable = findViewById(R.id.table);
+
+        listeCours = new ArrayList<>();
 
         // Init système pour recevoir les intents de l'activité ItemSelector
-        ActivityResultLauncher<Intent> itemSelectorResultLauncher = registerForActivityResult(
+        itemSelectorResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() != Activity.RESULT_OK) {
@@ -92,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putInt(PREFERENCE_TYPE_RECHERCHE, typeRecherche);
                     editor.apply();
 
-                    updateRecyclerView();
+                    updateTimeTable();
                 }
             }
         );
@@ -104,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         initCalendar();
-        setupRecyclerView();
 
         // On regarde si on a dans les préferences une date sélectionnée et une liste de promos sélectionnées
         // Si oui, on les récupère
@@ -112,14 +108,23 @@ public class MainActivity extends AppCompatActivity {
 
         promosRecherche = prefs.getString(PREFERENCES_PROMOS, "");
         typeRecherche = prefs.getInt(PREFERENCE_TYPE_RECHERCHE, -1);
+    }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        initTimeTable();
         if (typeRecherche != -1) {
-            updateRecyclerView();
+            updateTimeTable();
         } else {
             // On lance l'activité ItemSelector pour que l'utilisateur choisisse une promo
             Intent intent = new Intent(this, ItemSelector.class);
             itemSelectorResultLauncher.launch(intent);
         }
+    }
+
+    private void initTimeTable() {
+        timetable.initTable(new String[]{""});
     }
 
     public void initCalendar() {
@@ -155,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         LocalDate start = LocalDate.of(annee, 7, 1);
         LocalDate end = LocalDate.of(annee + 1, 7, 31);
 
-        calendarView.setup(start, end, DayOfWeek.SUNDAY);
+        calendarView.setup(start, end, DayOfWeek.MONDAY);
         calendarView.scrollToWeek(LocalDate.now());
 
         // On sélectionne le jour actuel
@@ -170,22 +175,11 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    public void setupRecyclerView() {
-        coursListe = new ArrayList<>();
+    public void updateTimeTable() {
 
-        rv = (RecyclerView) findViewById(R.id.recycler_view);
-        CoursAdapter adapter = new CoursAdapter(coursListe);
-        rv.setAdapter(adapter);
-
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        rv.setLayoutManager(llm);
-    }
-
-    public void updateRecyclerView() {
-
-        Log.i("MainActivity", "updateRecyclerView: " + DayViewContainer.getSelectedDate().toString());
-        Log.i("MainActivity", "updateRecyclerView: " + promosRecherche);
-        Log.i("MainActivity", "updateRecyclerView: " + typeRecherche);
+        Log.i("MainActivity", "updateTimeTable: " + DayViewContainer.getSelectedDate().toString());
+        Log.i("MainActivity", "updateTimeTable: " + promosRecherche);
+        Log.i("MainActivity", "updateTimeTable: " + typeRecherche);
 
         if (typeRecherche == -1) {
             return;
@@ -194,8 +188,8 @@ public class MainActivity extends AppCompatActivity {
         BetterAdeApi.recupereAfficheCoursDay(
                 promosRecherche,
                 DayViewContainer.getSelectedDate(),
-                coursListe,
-                rv,
+                listeCours,
+                timetable,
                 typeRecherche);
     }
 

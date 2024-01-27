@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import xyz.alphaline.mintimetablenew.databinding.ItemScheduleBinding
 import xyz.alphaline.mintimetablenew.model.ScheduleEntity
 import xyz.alphaline.mintimetablenew.tableinterface.OnScheduleClickListener
@@ -23,7 +23,7 @@ class ScheduleView(context: Context,
                    scheduleLongClickListener: OnScheduleLongClickListener?,
                    tableStartTime: Int,
                    radiusStyle: Int
-) : LinearLayout(context) {
+) : ConstraintLayout(context) {
     init {
         setting(
             context,
@@ -62,6 +62,10 @@ class ScheduleView(context: Context,
         )).toDouble() / 60) - (height * tableStartTime)).toInt()
         layoutSetting.leftMargin = width * entity.scheduleDay
 
+        layoutSetting.topToTop = LayoutParams.PARENT_ID
+        layoutSetting.leftToLeft = LayoutParams.PARENT_ID
+        layoutSetting.rightToRight = LayoutParams.PARENT_ID
+
         binding.tableItem.layoutParams = layoutSetting
 
         binding.tableItem.setOnClickListener {
@@ -90,7 +94,6 @@ class ScheduleView(context: Context,
             NONE -> {}
             LEFT -> {
                 layoutText.leftMargin = (width.toDouble() * 0.15).toInt()
-                binding.tableItem.gravity = Gravity.RIGHT
                 binding.name.layoutParams = layoutText
                 binding.name.gravity = Gravity.RIGHT
                 binding.room.gravity = Gravity.RIGHT
@@ -111,10 +114,12 @@ class ScheduleView(context: Context,
         binding.tableItem.background = border
 
         binding.name.text = entity.scheduleName
-        binding.room.text = entity.roomInfo
+        binding.room.text = entity.roomInfo.joinToString(", ") + " (" + entity.groups.joinToString(" / ") + ")"
+        binding.professor.text = entity.professor.joinToString(", ")
 
         binding.name.setTextColor(Color.parseColor(entity.textColor))
         binding.room.setTextColor(Color.parseColor(entity.textColor))
+        binding.professor.setTextColor(Color.parseColor(entity.textColor))
     }
 
     companion object {

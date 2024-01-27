@@ -41,8 +41,8 @@ class MinTimeTableView : BaseTimeTable {
     }
 
     fun initTable(dayList: Array<String>) {
-        super.tableStartTime = 9
-        super.tableEndTime = 16
+        super.tableStartTime = 8
+        super.tableEndTime = 19
         super.dayList = dayList
 
         super.topMenuHeightPx = dpToPx(
@@ -153,7 +153,9 @@ class MinTimeTableView : BaseTimeTable {
         if (super.schedules.size == 0) {
             return
         }
-        super.calculateTime(super.schedules)
+
+        // On force la timetable de 8h à 19h, donc on ne recalcule pas le timing de la table en fonction des horaires des events
+        // super.calculateTime(super.schedules)
 
         xyz.alphaline.mintimetablenew.utils.removeViews(
             arrayOf(

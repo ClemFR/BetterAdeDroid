@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class CustomSchedule {
@@ -20,31 +21,34 @@ public class CustomSchedule {
     public static ScheduleEntity fromJSONObject(JSONObject jsonObject) throws JSONException {
         String titre = jsonObject.getString("summary");
 
-        String prof = "";
+        List<String> prof = new ArrayList<>();
         JSONArray profs = jsonObject.getJSONArray("teachers");
         for (int i = 0; i < profs.length(); i++) {
-            prof += profs.getString(i);
-            if (i < profs.length() - 1) {
-                prof += ", ";
-            }
+            prof.add(profs.getString(i));
         }
         if (profs.length() == 0) {
-            prof = "Aucun enseignant";
+            prof.add("Aucun enseignant");
         }
 
-        String salle = "";
+        List<String> salle = new ArrayList<>();
         try {
             JSONArray salles = jsonObject.getJSONArray("location");
             for (int i = 0; i < salles.length(); i++) {
-                salle += salles.getString(i);
-                if (i < salles.length() - 1) {
-                    salle += ", ";
-                }
+                salle.add(salles.getString(i));
             }
         } catch (JSONException e) {
-            salle = "Aucune salle";
+            salle.add("Aucune salle");
         }
 
+        List<String> groupes = new ArrayList<>();
+        try {
+            JSONArray groupesJSON = jsonObject.getJSONArray("ade_groups");
+            for (int i = 0; i < groupesJSON.length(); i++) {
+                groupes.add(groupesJSON.getString(i));
+            }
+        } catch (JSONException e) {
+            groupes.add("Aucun groupe");
+        }
 
         Calendar heureDebut = getCalendarFromISODate(jsonObject.getString("start"));
         Calendar heureFin = getCalendarFromISODate(jsonObject.getString("end"));
@@ -59,7 +63,9 @@ public class CustomSchedule {
                 HEURE_MINUTE_FORMAT.format(heureDebut.getTime()),
                 HEURE_MINUTE_FORMAT.format(heureFin.getTime()),
                 backgroundColor,
-                textColor(backgroundColor)
+                textColor(backgroundColor),
+                prof,
+                groupes
         );
     }
 

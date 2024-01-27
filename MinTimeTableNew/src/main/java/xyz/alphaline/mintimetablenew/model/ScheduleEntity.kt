@@ -5,12 +5,14 @@ import android.view.View
 class ScheduleEntity(
     var originId: Int,
     var scheduleName: String,
-    var roomInfo: String,
+    var roomInfo: List<String>,
     var scheduleDay: Int,
     var startTime: String,
     var endTime: String,
     var backgroundColor: String = "#dddddd",
-    var textColor: String = "#ffffff"
+    var textColor: String = "#ffffff",
+    var professor: List<String>,
+    var groups: List<String>
 ) {
 
     var mOnClickListener: View.OnClickListener? = null

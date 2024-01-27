@@ -13,8 +13,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.islandparadise14.mintable.MinTimeTableView;
-import com.islandparadise14.mintable.model.ScheduleEntity;
+import xyz.alphaline.mintimetablenew.BaseTimeTable;
+import xyz.alphaline.mintimetablenew.MinTimeTableView;
+import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
 import com.kizitonwose.calendar.core.WeekDay;
 import com.kizitonwose.calendar.view.WeekCalendarView;
 import com.kizitonwose.calendar.view.WeekDayBinder;

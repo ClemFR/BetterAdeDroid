@@ -6,8 +6,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.islandparadise14.mintable.MinTimeTableView;
-import com.islandparadise14.mintable.model.ScheduleEntity;
+import xyz.alphaline.mintimetablenew.MinTimeTableView;
+import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
 
 import org.json.JSONArray;
 

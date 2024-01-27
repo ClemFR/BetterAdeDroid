@@ -1,7 +1,7 @@
 package xyz.alpha_line.android.betterade;
 
-import com.islandparadise14.mintable.model.ScheduleDay;
-import com.islandparadise14.mintable.model.ScheduleEntity;
+import xyz.alphaline.mintimetablenew.model.ScheduleDay;
+import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
 
 import org.json.JSONArray;
 import org.json.JSONException;

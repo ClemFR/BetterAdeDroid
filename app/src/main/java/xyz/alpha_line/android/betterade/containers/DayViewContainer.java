@@ -73,7 +73,8 @@ public class DayViewContainer extends ViewContainer {
 
     public static Date getSelectedDate() {
         Calendar c = Calendar.getInstance();
-        c.set(selected_date.getYear(), selected_date.getMonthValue() - 1, selected_date.getDayOfMonth());
+        c.set(selected_date.getYear(), selected_date.getMonthValue() - 1, selected_date.getDayOfMonth(), 0, 0, 0);
+        c.set(Calendar.MILLISECOND, 0);
         return c.getTime();
     }
 

@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import xyz.alpha_line.android.betterade.CustomSchedule;
-import xyz.alpha_line.android.betterade.MainActivity;
 
 public class BetterAdeApi {
 

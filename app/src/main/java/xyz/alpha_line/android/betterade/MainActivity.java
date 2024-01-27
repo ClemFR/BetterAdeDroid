@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import kotlin.Unit;
 import xyz.alpha_line.android.betterade.api.BetterAdeApi;
@@ -46,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     public static String PREFERENCES_PROMOS = "promos";
     public static String PREFERENCE_TYPE_RECHERCHE = "type";
 
+    private Date lastSelectedDate = null;
+    private boolean firstFocus = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,43 +60,36 @@ public class MainActivity extends AppCompatActivity {
         calendarView = findViewById(R.id.calendarView);
         timetable = findViewById(R.id.table);
 
-        listeCours = new ArrayList<>();
 
-        // Métriques de nouvelle installation
-        InstallNotifier.detectNewInstall(this);
+        if (savedInstanceState != null) {
+            lastSelectedDate = (Date) savedInstanceState.getSerializable("lastSelectedDate");
+            listeCours = (ArrayList<ScheduleEntity>) savedInstanceState.getSerializable("listeCours");
+
+            // Supression vue timetable + réinitialisation
+            timetable = new MinTimeTableView(this);
+            timetable = findViewById(R.id.table);
+
+            initTimeTable();
+            Log.i("MainActivity", "onCreate: Taille liste cours : " + listeCours.size());
+
+            // Fix dégeu : Lancement thread poure re-remplir la timetable avec les cours récupérés
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1500);
+                    MainActivity.this.runOnUiThread(() -> timetable.updateSchedules(listeCours));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        } else {
+            listeCours = new ArrayList<>();
+
+            // Métriques de nouvelle installation
+            InstallNotifier.detectNewInstall(this);
+        }
 
         // Init système pour recevoir les intents de l'activité ItemSelector
-        itemSelectorResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() != Activity.RESULT_OK) {
-                    if (typeRecherche == -1) {
-                        lancerItemSelector();
-                    }
-                }
-
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    Intent data = result.getData();
-
-                    typeRecherche = data.getIntExtra(ItemSelector.INTENT_TYPE_RESSOURCE, -1);
-                    promosRecherche = data.getStringExtra(ItemSelector.INTENT_LISTE_RESSOURCE);
-
-                    if (typeRecherche == -1) {
-                        lancerItemSelector();
-                        return;
-                    }
-
-                    // On sauvegarde les préférences
-                    SharedPreferences prefs = this.getPreferences(MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString(PREFERENCES_PROMOS, promosRecherche);
-                    editor.putInt(PREFERENCE_TYPE_RECHERCHE, typeRecherche);
-                    editor.apply();
-
-                    updateTimeTable();
-                }
-            }
-        );
+        startListenerCallbackActiviteFille();
 
         // On initialise le bouton flottant qui lance l'activité ItemSelector
         findViewById(R.id.fab).setOnClickListener(v -> {
@@ -108,16 +105,21 @@ public class MainActivity extends AppCompatActivity {
 
         promosRecherche = prefs.getString(PREFERENCES_PROMOS, "");
         typeRecherche = prefs.getInt(PREFERENCE_TYPE_RECHERCHE, -1);
+
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        initTimeTable();
+        // lance automatiquement la recherche si on a déjà des promos sélectionnées
         if (typeRecherche != -1) {
-            updateTimeTable();
+            if (hasFocus && firstFocus) {
+                initTimeTable();
+                updateTimeTable();
+            }
         } else {
             // On lance l'activité ItemSelector pour que l'utilisateur choisisse une promo
+            firstFocus = true;
             Intent intent = new Intent(this, ItemSelector.class);
             itemSelectorResultLauncher.launch(intent);
         }
@@ -134,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
             public void bind(@NonNull DayViewContainer dayView, WeekDay weekDay) {
                 dayView.day = weekDay.getDate();
                 dayView.dayText.setText(String.valueOf(weekDay.getDate().getDayOfMonth()));
-                Log.i("MainActivity", "bind: " + dayView.day.toString());
                 dayView.updateUi();
             }
 
@@ -192,7 +193,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateTimeTable() {
 
-        Log.i("MainActivity", "updateTimeTable: " + DayViewContainer.getSelectedDate().toString());
+        // On regarde si la date sélectionnée est la même que la dernière fois
+        if (lastSelectedDate != null && lastSelectedDate.equals(DayViewContainer.getSelectedDate())) {
+            return;
+        }
+
+        Log.i("MainActivity", "updateTimeTable: last selected : " + lastSelectedDate);
+        Log.i("MainActivity", "updateTimeTable: selected      : " + DayViewContainer.getSelectedDate());
+        lastSelectedDate = DayViewContainer.getSelectedDate();
         Log.i("MainActivity", "updateTimeTable: " + promosRecherche);
         Log.i("MainActivity", "updateTimeTable: " + typeRecherche);
 
@@ -212,5 +220,46 @@ public class MainActivity extends AppCompatActivity {
     public void lancerItemSelector() {
         Intent intent = new Intent(this, ItemSelector.class);
         startActivity(intent);
+    }
+
+    private void startListenerCallbackActiviteFille() {
+        itemSelectorResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() != Activity.RESULT_OK) {
+                        if (typeRecherche == -1) {
+                            lancerItemSelector();
+                        }
+                    }
+
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+
+                        typeRecherche = data.getIntExtra(ItemSelector.INTENT_TYPE_RESSOURCE, -1);
+                        promosRecherche = data.getStringExtra(ItemSelector.INTENT_LISTE_RESSOURCE);
+
+                        if (typeRecherche == -1) {
+                            lancerItemSelector();
+                            return;
+                        }
+
+                        // On sauvegarde les préférences
+                        SharedPreferences prefs = this.getPreferences(MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString(PREFERENCES_PROMOS, promosRecherche);
+                        editor.putInt(PREFERENCE_TYPE_RECHERCHE, typeRecherche);
+                        editor.apply();
+
+                        updateTimeTable();
+                    }
+                }
+        );
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("lastSelectedDate", lastSelectedDate);
+        outState.putSerializable("listeCours", listeCours);
     }
 }

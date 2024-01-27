@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import xyz.alphaline.mintimetablenew.tableinterface.OnTimeCellClickListener
 import xyz.alphaline.mintimetablenew.databinding.ItemTableCellBinding
 
@@ -17,7 +18,7 @@ class TableCellView(context: Context,
                     timeCellClickListener: OnTimeCellClickListener?,
                     scheduleDay: Int,
                     time: Int
-) : LinearLayout(context) {
+) : ConstraintLayout(context) {
     init {
         initView(context, height, width, marginLeft, marginTop, cellColor, timeCellClickListener, scheduleDay, time)
     }
@@ -43,6 +44,11 @@ class TableCellView(context: Context,
         val layoutSetting = LayoutParams(width, height)
         layoutSetting.leftMargin = marginLeft
         layoutSetting.topMargin = marginTop
+
+        layoutSetting.topToTop = LayoutParams.PARENT_ID
+        layoutSetting.leftToLeft = LayoutParams.PARENT_ID
+        layoutSetting.rightToRight = LayoutParams.PARENT_ID
+
         binding.cell.layoutParams = layoutSetting
         if(cellColor != 0)
             binding.cellItem.setBackgroundColor(cellColor)

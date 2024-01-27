@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="white">#ffffff</color>
     <color name="default_line">#dddddd</color>
+    <color name="default_line_dark">#A2A2A2</color>
 </resources>

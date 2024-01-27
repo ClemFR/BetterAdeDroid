@@ -30,11 +30,13 @@ public class ItemSelector extends AppCompatActivity {
     private ListView listView;
 
     private List<String> liste;
+    private EditText search;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select);
+        search = findViewById(R.id.search);
 
         // Bind bouton valider / annuler
         findViewById(R.id.valider).setOnClickListener(this::valider);
@@ -43,10 +45,10 @@ public class ItemSelector extends AppCompatActivity {
             finish();
         });
 
+
         // Init de la liste
         liste = new ArrayList<>();
         listView = (ListView) findViewById(R.id.list_view);
-        listView.setAdapter(new FilteredArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, liste));
 
         // Mise en place du système d'appui pour sélectionner un item
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -64,7 +66,9 @@ public class ItemSelector extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                search.setText("");
                 BetterAdeApi.recupereAfficheListe(liste, listView, position);
+                initRechercheRapide();
             }
 
             @Override
@@ -73,8 +77,12 @@ public class ItemSelector extends AppCompatActivity {
             }
         });
 
+        initRechercheRapide();
+    }
+
+    private void initRechercheRapide() {
         // Init système recherche rapide
-        EditText search = (EditText) findViewById(R.id.search);
+        listView.setAdapter(new FilteredArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, liste));
         search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -88,6 +96,7 @@ public class ItemSelector extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 String text = search.getText().toString().toLowerCase(Locale.getDefault());
                 ((ArrayAdapter<String>) listView.getAdapter()).getFilter().filter(text);
+                Log.i("ItemSelector", "afterTextChanged: Taille liste " + liste.size());
             }
         });
     }

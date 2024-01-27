@@ -4,10 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import xyz.alphaline.mintimetablenew.databinding.YXisBinding
 
 @SuppressLint("ViewConstructor")
-class YxisView(context: Context, height: Int, width: Int, text: String, menuColor: Int, menuTextColor: Int, menuTextSize: Float) : LinearLayout(context) {
+class YxisView(context: Context, height: Int, width: Int, text: String, menuColor: Int, menuTextColor: Int, menuTextSize: Float) : ConstraintLayout(context) {
     init {
         initView(context, height, width, text, menuColor, menuTextColor, menuTextSize)
     }

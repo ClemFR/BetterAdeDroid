@@ -26,11 +26,10 @@
             app:cv_dayViewResource="@layout/calendar_day_layout"
             />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_marginTop="10dp"
+        <xyz.alphaline.mintimetablenew.MinTimeTableView
+            android:id="@+id/table"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent" />
+            android:layout_height="match_parent"/>
 
     </LinearLayout>
 

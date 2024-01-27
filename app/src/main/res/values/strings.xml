@@ -8,4 +8,9 @@
     <string name="hint_search">Ecrire pour commencer la recherche</string>
     <string name="valider">Valider</string>
     <string name="annuler">Annuler</string>
+
+    <string-array name="my_header_title">
+        <item></item>
+        <item></item>
+    </string-array>
 </resources>

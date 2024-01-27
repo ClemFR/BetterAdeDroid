@@ -3,6 +3,12 @@
     <style name="Base.Theme.BetterAde" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <!-- Status bar = responsible for the background color. -->
+        <!-- Status bar = responsible for the background color. -->
+        <item name="android:statusBarColor">#fef6fe</item>
+        <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
+
     </style>
 
     <style name="Theme.BetterAde" parent="Base.Theme.BetterAde" />

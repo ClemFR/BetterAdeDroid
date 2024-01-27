@@ -13,10 +13,12 @@
         android:orientation="vertical">
 
         <TextView
+            android:layout_marginVertical="5dp"
+            android:gravity="center"
             android:id="@+id/monthText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
+            tools:text="janvier 2024"
             />
 
         <com.kizitonwose.calendar.view.WeekCalendarView

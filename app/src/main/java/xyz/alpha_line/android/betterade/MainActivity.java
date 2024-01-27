@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private String promosRecherche = "";
     private int typeRecherche = -1;
 
-
-
     public static String PREFERENCES_PROMOS = "promos";
     public static String PREFERENCE_TYPE_RECHERCHE = "type";
 
@@ -171,7 +169,22 @@ public class MainActivity extends AppCompatActivity {
         // On détecte quand on scroll sur le calendrier
         calendarView.setWeekScrollListener(
                 week -> {
-                    monthText.setText(week.getDays().get(0).getDate().format(DateTimeFormatter.ofPattern("MMMM yyyy")));
+                    String textMonth = "";
+                    String temp;
+
+                    // On regarde si la semaine est à cheval sur 2 mois
+                    if (week.getDays().get(0).getDate().getMonth() != week.getDays().get(6).getDate().getMonth()) {
+                        temp = week.getDays().get(0).getDate().format(DateTimeFormatter.ofPattern("MMMM"));
+                        textMonth += temp.substring(0, 1).toUpperCase() + temp.substring(1); // On met la première lettre en majuscule
+                        textMonth += " - ";
+                        temp = week.getDays().get(6).getDate().format(DateTimeFormatter.ofPattern("MMMM yyyy"));
+                        textMonth += temp.substring(0, 1).toUpperCase() + temp.substring(1); // On met la première lettre en majuscule
+                    } else {
+                        temp = week.getDays().get(0).getDate().format(DateTimeFormatter.ofPattern("MMMM yyyy"));
+                        textMonth += temp.substring(0, 1).toUpperCase() + temp.substring(1); // On met la première lettre en majuscule
+                    }
+
+                    monthText.setText(textMonth);
                     return Unit.INSTANCE;
                 });
     }

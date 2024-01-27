@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import xyz.alpha_line.android.betterade.util.InstallNotifier;
 import xyz.alphaline.mintimetablenew.BaseTimeTable;
 import xyz.alphaline.mintimetablenew.MinTimeTableView;
 import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
@@ -32,7 +33,6 @@ import xyz.alpha_line.android.betterade.containers.DayViewContainer;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static MainActivity instance;
 
     private TextView monthText;
     private WeekCalendarView calendarView;
@@ -52,13 +52,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        instance = this;
-
         monthText = findViewById(R.id.monthText);
         calendarView = findViewById(R.id.calendarView);
         timetable = findViewById(R.id.table);
 
         listeCours = new ArrayList<>();
+
+        // Métriques de nouvelle installation
+        InstallNotifier.detectNewInstall(this);
 
         // Init système pour recevoir les intents de l'activité ItemSelector
         itemSelectorResultLauncher = registerForActivityResult(
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             @NonNull
             @Override
             public DayViewContainer create(@NonNull View view) {
-                return new DayViewContainer(view);
+                return new DayViewContainer(view, MainActivity.this);
             }
         };
 
@@ -204,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
                 DayViewContainer.getSelectedDate(),
                 listeCours,
                 timetable,
-                typeRecherche);
+                typeRecherche,
+                this);
     }
 
     public void lancerItemSelector() {

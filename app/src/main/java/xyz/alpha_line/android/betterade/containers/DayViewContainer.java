@@ -22,11 +22,13 @@ public class DayViewContainer extends ViewContainer {
 
     private static LocalDate selected_date = LocalDate.now();
     private static View last_selected_view;
+    MainActivity instance;
 
-    public DayViewContainer(View view) {
+    public DayViewContainer(View view, MainActivity mainActivity) {
         super(view);
         dayText = view.findViewById(R.id.calendarDayText);
         this.view = view;
+        this.instance = mainActivity;
     }
 
     public void updateUi() {
@@ -64,7 +66,7 @@ public class DayViewContainer extends ViewContainer {
                 v.setSelected(true);
 
                 // On envoi a la mainactivity le signal pour qu'elle mette a jour la liste des cours
-                MainActivity.instance.updateTimeTable();
+                instance.updateTimeTable();
             }
         });
     }

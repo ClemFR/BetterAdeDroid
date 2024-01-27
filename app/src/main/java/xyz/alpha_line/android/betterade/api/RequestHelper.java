@@ -1,5 +1,7 @@
 package xyz.alpha_line.android.betterade.api;
 
+import android.content.Context;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -24,9 +26,9 @@ public class RequestHelper {
      * Méthode permettant de récupérer la file de requêtes
      * @return La file de requêtes
      */
-    private static RequestQueue getFileRequetes() {
+    private static RequestQueue getFileRequetes(Context c) {
         if (fileRequetes == null) {
-            fileRequetes = Volley.newRequestQueue(MainActivity.instance);
+            fileRequetes = Volley.newRequestQueue(c);
         }
         return fileRequetes;
     }
@@ -44,7 +46,8 @@ public class RequestHelper {
                                                JSONObject body,
                                                int method,
                                                Consumer<JSONObject> processResponse,
-                                               Consumer<VolleyError> processError) {
+                                               Consumer<VolleyError> processError,
+                                               Context c) {
 
         // Création de la requête
         JsonObjectRequest request = new JsonObjectRequest(
@@ -76,7 +79,7 @@ public class RequestHelper {
         };
 
         // Ajout de la requête à la file
-        getFileRequetes().add(request);
+        getFileRequetes(c).add(request);
     }
 
 
@@ -93,7 +96,8 @@ public class RequestHelper {
                                               JSONArray body,
                                               int method,
                                               Consumer<JSONArray> processResponse,
-                                              Consumer<VolleyError> processError) {
+                                              Consumer<VolleyError> processError,
+                                              Context c) {
 
         // Création de la requête
         JsonArrayRequest request = new JsonArrayRequest(
@@ -125,7 +129,7 @@ public class RequestHelper {
         };
 
         // Ajout de la requête à la file
-        getFileRequetes().add(request);
+        getFileRequetes(c).add(request);
     }
 
 }

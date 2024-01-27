@@ -150,9 +150,6 @@ class MinTimeTableView : BaseTimeTable {
 
     fun updateSchedules(schedules: ArrayList<ScheduleEntity>) {
         super.schedules = schedules
-        if (super.schedules.size == 0) {
-            return
-        }
 
         // On force la timetable de 8h à 19h, donc on ne recalcule pas le timing de la table en fonction des horaires des events
         // super.calculateTime(super.schedules)

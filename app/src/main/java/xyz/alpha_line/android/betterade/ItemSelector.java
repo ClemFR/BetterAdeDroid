@@ -1,5 +1,6 @@
 package xyz.alpha_line.android.betterade;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -67,7 +68,7 @@ public class ItemSelector extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 search.setText("");
-                BetterAdeApi.recupereAfficheListe(liste, listView, position);
+                BetterAdeApi.recupereAfficheListe(liste, listView, position, ItemSelector.this);
                 initRechercheRapide();
             }
 

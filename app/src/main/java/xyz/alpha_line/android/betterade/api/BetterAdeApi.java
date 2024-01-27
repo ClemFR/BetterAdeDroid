@@ -1,32 +1,42 @@
 package xyz.alpha_line.android.betterade.api;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
+import com.android.volley.VolleyError;
+
+import xyz.alpha_line.android.betterade.util.InstallNotifier;
 import xyz.alphaline.mintimetablenew.MinTimeTableView;
 import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import xyz.alpha_line.android.betterade.CustomSchedule;
 import xyz.alpha_line.android.betterade.MainActivity;
-import xyz.alpha_line.android.betterade.recyclerview.CoursInfos;
 
 public class BetterAdeApi {
 
     public static String API_BASE_URL = "https://api.ade.alpha-line.xyz/";
+    // public static String API_BASE_URL = "http://localhost:5000/";
     public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.FRANCE);
 
-    public static void recupereAfficheCoursDay(String idPromo, Date date, ArrayList<ScheduleEntity> coursInfosList, MinTimeTableView timetable, int typeRecherche) {
+    public static void recupereAfficheCoursDay(String idPromo, Date date, ArrayList<ScheduleEntity> coursInfosList, MinTimeTableView timetable, int typeRecherche, Activity a) {
         String url_path = API_BASE_URL;
         if (typeRecherche == 0) {
             url_path += "day/" + idPromo + "/" + DATE_FORMAT.format(date);
@@ -35,7 +45,7 @@ public class BetterAdeApi {
         } else if (typeRecherche == 2) {
             url_path += "room/day/" + idPromo + "/" + DATE_FORMAT.format(date);
         } else {
-            Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
+            Toast.makeText(a, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -43,27 +53,28 @@ public class BetterAdeApi {
 
         RequestHelper.simpleJSONArrayRequest(
                 url_path,
-                null,
+                getHeaders(a),
                 null,
                 Request.Method.GET,
                 response -> {
-                    afficheListeCours(response, coursInfosList, timetable);
+                    afficheListeCours(response, coursInfosList, timetable, a);
                 },
                 error -> {
                     error.printStackTrace();
-                    Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
-                }
+                    Toast.makeText(a, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
+                },
+                a
         );
     }
 
-    public static void afficheListeCours(JSONArray arr, ArrayList<ScheduleEntity> liste, MinTimeTableView timetable) {
+    public static void afficheListeCours(JSONArray arr, ArrayList<ScheduleEntity> liste, MinTimeTableView timetable, Activity a) {
         ArrayList<ScheduleEntity> new_liste = new ArrayList<>();
 
         try {
             new_liste = CustomSchedule.fromJSONArray(arr);
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
+            Toast.makeText(a, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
             System.out.println(arr.toString());
         }
 
@@ -71,12 +82,15 @@ public class BetterAdeApi {
         liste.addAll(new_liste);
 
         try {
-            MainActivity.instance.runOnUiThread(() -> {
+            a.runOnUiThread(() -> {
                 timetable.updateSchedules(liste);
+                if (liste.size() == 0) {
+                    Toast.makeText(a, "Aucun cours, YAY ! ", Toast.LENGTH_SHORT).show();
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
+            Toast.makeText(a, "Erreur lors de la récupération des informations", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -85,7 +99,7 @@ public class BetterAdeApi {
     //------------------------- GESTION LISTE POUR RECHERCHE RAPIDE -------------------------//
     //---------------------------------------------------------------------------------------//
 
-    public static void recupereAfficheListe(List<String> lte, ListView lv, int typeListe) {
+    public static void recupereAfficheListe(List<String> lte, ListView lv, int typeListe, Activity a) {
         String url_path = API_BASE_URL;
         switch (typeListe) {
             case 0:
@@ -98,7 +112,7 @@ public class BetterAdeApi {
                 url_path += "rooms";
                 break;
             default:
-                Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
+                Toast.makeText(a, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
                 return;
         }
 
@@ -106,20 +120,21 @@ public class BetterAdeApi {
 
         RequestHelper.simpleJSONArrayRequest(
                 url_path,
-                null,
+                getHeaders(a),
                 null,
                 Request.Method.GET,
                 response -> {
-                        afficheListe(response, lte, lv);
+                        afficheListe(response, lte, lv, a);
                 },
                 error -> {
                     error.printStackTrace();
-                    Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
-                }
+                    Toast.makeText(a, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
+                },
+                a
         );
     }
 
-    private static void afficheListe(JSONArray arr, List<String> liste, ListView lv) {
+    private static void afficheListe(JSONArray arr, List<String> liste, ListView lv, Activity a) {
 
         List<String> new_liste = new ArrayList<>();
         try {
@@ -128,7 +143,7 @@ public class BetterAdeApi {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
+            Toast.makeText(a, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
             System.out.println(arr.toString());
         }
 
@@ -139,15 +154,40 @@ public class BetterAdeApi {
         liste.addAll(new_liste);
 
         try {
-            MainActivity.instance.runOnUiThread(() -> {
+            a.runOnUiThread(() -> {
                 ((BaseAdapter) lv.getAdapter()).notifyDataSetChanged();
             });
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(MainActivity.instance, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
+            Toast.makeText(a, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
         }
 
     }
 
+    public static void notifierNouvelleInstall(String id, Consumer<JSONObject> processResponse, Consumer<VolleyError> processError, Context c) {
+        // On récupère l'id de l'appareil
+        RequestHelper.simpleJSONObjectRequest(
+                API_BASE_URL + "metrics/install/" + id,
+                null,
+                null,
+                Request.Method.GET,
+                processResponse::accept,
+                processError::accept,
+                c
+        );
+    }
+
+    private static Map<String, String> getHeaders(Context c) {
+        Map<String, String> headers = new HashMap<>();
+
+        // On ajoute l'id de l'appareil
+        SharedPreferences prefs = c.getSharedPreferences(InstallNotifier.PREFS_NAME, Context.MODE_PRIVATE);
+        String id = prefs.getString("id", null);
+        if (id != null) {
+            headers.put("X-Device", id);
+        }
+
+        return headers;
+    }
 }
 

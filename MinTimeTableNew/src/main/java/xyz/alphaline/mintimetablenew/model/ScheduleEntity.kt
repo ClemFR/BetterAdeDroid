@@ -1,6 +1,7 @@
 package xyz.alphaline.mintimetablenew.model
 
 import android.view.View
+import java.io.Serializable
 
 class ScheduleEntity(
     var originId: Int,
@@ -13,7 +14,7 @@ class ScheduleEntity(
     var textColor: String = "#ffffff",
     var professor: List<String>,
     var groups: List<String>
-) {
+) : Serializable {
 
     var mOnClickListener: View.OnClickListener? = null
 

@@ -49,12 +49,16 @@ public class MainActivity extends AppCompatActivity {
 
     private Date lastSelectedDate = null;
     private boolean firstFocus = true;
+    private boolean onCreate = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.i("MainActivity", "onCreate: ");
+        onCreate = true;
 
         monthText = findViewById(R.id.monthText);
         calendarView = findViewById(R.id.calendarView);
@@ -259,7 +263,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable("lastSelectedDate", lastSelectedDate);
-        outState.putSerializable("listeCours", listeCours);
+        try {
+            outState.putSerializable("lastSelectedDate", lastSelectedDate);
+            // Serialisation de la liste de cours
+            outState.putSerializable("listeCours", listeCours);
+
+        } catch (Exception e) {
+            Log.e("MainActivity", "onSaveInstanceState: " + e.getMessage());
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (listeCours != null && listeCours.size() > 0) {
+            // Si on peut récupérer la liste de cours, on la met à jour
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000);
+                    MainActivity.this.runOnUiThread(() -> timetable.updateSchedules(listeCours));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
     }
 }

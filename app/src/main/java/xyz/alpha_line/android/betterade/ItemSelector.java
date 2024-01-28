@@ -11,9 +11,17 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +33,8 @@ public class ItemSelector extends AppCompatActivity {
 
     public static final String INTENT_TYPE_RESSOURCE = "xyz.alpha_line.android.betterade.ItemSelector.INTENT_TYPE_RESSOURCE";
     public static final String INTENT_LISTE_RESSOURCE = "xyz.alpha_line.android.betterade.ItemSelector.INTENT_LISTE_RESSOURCE";
+
+    private static final String STORAGE_FILE_LOCATION = "listes_ressources";
 
 
     private Spinner spinner;
@@ -68,8 +78,24 @@ public class ItemSelector extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 search.setText("");
-                BetterAdeApi.recupereAfficheListe(liste, listView, position, ItemSelector.this);
-                initRechercheRapide();
+
+                // On essaye de charger la liste depuis le stockage
+                if (loadListeRessource(position, liste)) {
+                    Log.i("ItemSelector", "onItemSelected: Liste chargée depuis le stockage");
+                    initRechercheRapide();
+                } else {
+                    Log.i("ItemSelector", "onItemSelected: Liste récupérée depuis l'API");
+                    BetterAdeApi.recupereAfficheListe(liste, listView, position, ItemSelector.this, () -> {
+                        // Callback exécuté après la récuperation de la liste
+                        // On essaye de sauvegarder la liste
+                        if (storeListeRessource(position, liste)) {
+                            Log.i("ItemSelector", "onItemSelected: Liste sauvegardée");
+                        } else {
+                            Log.i("ItemSelector", "onItemSelected: Impossible de sauvegarder la liste");
+                        }
+                    });
+                    initRechercheRapide();
+                }
             }
 
             @Override
@@ -133,5 +159,76 @@ public class ItemSelector extends AppCompatActivity {
         getIntent().putExtra(INTENT_TYPE_RESSOURCE, spinner.getSelectedItemPosition());
         setResult(RESULT_OK, getIntent());
         finish();
+    }
+
+    public boolean storeListeRessource(int typeRessource, List<String> liste) {
+        File path = new File(getFilesDir(), STORAGE_FILE_LOCATION);
+        path = new File(path, typeRessource + ".ser");
+
+        if (!path.exists()) {
+            try {
+                path.getParentFile().mkdirs();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        // On sérialise la liste
+        try {
+            FileOutputStream fos = new FileOutputStream(path);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(liste);
+            oos.close();
+            fos.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean loadListeRessource(int typeRessource, List<String> liste) {
+        File path = new File(getFilesDir(), STORAGE_FILE_LOCATION);
+        path = new File(path, typeRessource + ".ser");
+
+        if (!path.exists()) {
+            return false;
+        }
+
+        if (path.isDirectory()) {
+            return false;
+        }
+
+        // On regarde la date de dernière modification
+        long lastModified = path.lastModified();
+        long now = System.currentTimeMillis();
+
+        // Si le fichier a été modifié il y a plus de 24h, on le supprime
+        if (now - lastModified > 24 * 60 * 60 * 1000) {
+            Log.i("ItemSelector", "loadListeRessource: Fichier liste trop vieux, on le supprime");
+            path.delete();
+            return false;
+        }
+
+        List<String> newListe;
+        Log.i("ItemSelector", "loadListeRessource: Fichier liste trouvé");
+        Log.i("ItemSelector", "loadListeRessource: " + path.getAbsolutePath());
+
+        // On désérialise la liste
+        try {
+            FileInputStream fis = new FileInputStream(path);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            newListe = (List<String>) ois.readObject();
+            ois.close();
+            fis.close();
+
+            liste.clear();
+            liste.addAll(newListe);
+            return true;
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

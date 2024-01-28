@@ -98,7 +98,7 @@ public class BetterAdeApi {
     //------------------------- GESTION LISTE POUR RECHERCHE RAPIDE -------------------------//
     //---------------------------------------------------------------------------------------//
 
-    public static void recupereAfficheListe(List<String> lte, ListView lv, int typeListe, Activity a) {
+    public static void recupereAfficheListe(List<String> lte, ListView lv, int typeListe, Activity a, Runnable callback) {
         String url_path = API_BASE_URL;
         switch (typeListe) {
             case 0:
@@ -123,7 +123,7 @@ public class BetterAdeApi {
                 null,
                 Request.Method.GET,
                 response -> {
-                        afficheListe(response, lte, lv, a);
+                        afficheListe(response, lte, lv, a, callback);
                 },
                 error -> {
                     error.printStackTrace();
@@ -133,7 +133,7 @@ public class BetterAdeApi {
         );
     }
 
-    private static void afficheListe(JSONArray arr, List<String> liste, ListView lv, Activity a) {
+    private static void afficheListe(JSONArray arr, List<String> liste, ListView lv, Activity a, Runnable callback) {
 
         List<String> new_liste = new ArrayList<>();
         try {
@@ -160,6 +160,8 @@ public class BetterAdeApi {
             e.printStackTrace();
             Toast.makeText(a, "Erreur lors de la récupération des promos", Toast.LENGTH_LONG).show();
         }
+
+        callback.run();
 
     }
 

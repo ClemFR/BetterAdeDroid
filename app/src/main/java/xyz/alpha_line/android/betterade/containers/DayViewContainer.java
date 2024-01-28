@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import xyz.alpha_line.android.betterade.MainActivity;
+import xyz.alpha_line.android.betterade.QuickSearch;
 import xyz.alpha_line.android.betterade.R;
 
 public class DayViewContainer extends ViewContainer {
@@ -22,14 +23,25 @@ public class DayViewContainer extends ViewContainer {
 
     private static LocalDate selected_date = LocalDate.now();
     private static View last_selected_view;
-    MainActivity instance;
+    private final MainActivity instanceMainActivity;
+    private final QuickSearch instanceQuickSearch;
 
-    public DayViewContainer(View view, MainActivity mainActivity) {
+    public DayViewContainer(View view, MainActivity a) {
         super(view);
         dayText = view.findViewById(R.id.calendarDayText);
         this.view = view;
-        this.instance = mainActivity;
+        this.instanceMainActivity = a;
+        this.instanceQuickSearch = null;
     }
+
+    public DayViewContainer(View view, QuickSearch a) {
+        super(view);
+        dayText = view.findViewById(R.id.calendarDayText);
+        this.view = view;
+        this.instanceQuickSearch = a;
+        this.instanceMainActivity = null;
+    }
+
 
     public void updateUi() {
 
@@ -66,7 +78,11 @@ public class DayViewContainer extends ViewContainer {
                 v.setSelected(true);
 
                 // On envoi a la mainactivity le signal pour qu'elle mette a jour la liste des cours
-                instance.updateTimeTable();
+                if (instanceQuickSearch != null) {
+                    instanceQuickSearch.updateTimeTable();
+                } else {
+                    instanceMainActivity.updateTimeTable();
+                }
             }
         });
     }

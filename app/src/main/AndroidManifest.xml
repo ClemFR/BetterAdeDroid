@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -16,8 +15,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BetterAde"
-        tools:targetApi="31"
-        tools:replace="android:theme">
+        tools:replace="android:theme"
+        tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -27,6 +26,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ItemSelector"/>
+        <activity android:name=".ItemSelector" />
+        <activity
+            android:name=".QuickSearch"
+            android:exported="false" />
     </application>
+
 </manifest>

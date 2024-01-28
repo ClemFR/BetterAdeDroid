@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import xyz.alpha_line.android.betterade.util.InstallNotifier;
-import xyz.alphaline.mintimetablenew.BaseTimeTable;
 import xyz.alphaline.mintimetablenew.MinTimeTableView;
 import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
 import com.kizitonwose.calendar.core.WeekDay;
@@ -112,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
         promosRecherche = prefs.getString(PREFERENCES_PROMOS, "");
         typeRecherche = prefs.getInt(PREFERENCE_TYPE_RECHERCHE, -1);
 
+        findViewById(R.id.fab_rech_rapide).setOnClickListener(v -> {
+            Intent intent = new Intent(this, QuickSearch.class);
+            startActivity(intent);
+        });
     }
 
     @Override

@@ -25,7 +25,8 @@
                 android:layout_marginVertical="5dp"
                 android:textStyle="bold"
                 android:text="Bienvenue !"
-                android:textSize="20sp"/>
+                android:textSize="20sp"
+                android:id="@+id/text_welcome"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -84,6 +85,15 @@
         android:layout_margin="16dp"
         android:text="Modif. recherche"
         android:id="@+id/fab"
+        />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="16dp"
+        android:text="Rech. rapide"
+        android:id="@+id/fab_rech_rapide"
         />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -20,26 +20,29 @@ public class DayViewContainer extends ViewContainer {
     public View view;
     public TextView dayText;
     public LocalDate day;
+    public DayViewFactory factory;
 
-    private static LocalDate selected_date = LocalDate.now();
-    private static View last_selected_view;
-    private final MainActivity instanceMainActivity;
-    private final QuickSearch instanceQuickSearch;
-
-    public DayViewContainer(View view, MainActivity a) {
+    public DayViewContainer(View view, DayViewFactory factory) {
         super(view);
         dayText = view.findViewById(R.id.calendarDayText);
         this.view = view;
-        this.instanceMainActivity = a;
-        this.instanceQuickSearch = null;
+        this.factory = factory;
     }
 
-    public DayViewContainer(View view, QuickSearch a) {
-        super(view);
-        dayText = view.findViewById(R.id.calendarDayText);
-        this.view = view;
-        this.instanceQuickSearch = a;
-        this.instanceMainActivity = null;
+    private LocalDate getSelectedDate() {
+        return factory.selectedDate;
+    }
+
+    private View getLastSelectedView() {
+        return factory.lastSelectedView;
+    }
+
+    private void setSelectedDate(LocalDate date) {
+        factory.selectedDate = date;
+    }
+
+    private void setLastSelectedView(View view) {
+        factory.lastSelectedView = view;
     }
 
 
@@ -55,12 +58,12 @@ public class DayViewContainer extends ViewContainer {
         }
 
         // On sélectionne le jour en faisant attention de ne pas sélectionner qu'avec la vue car elles sont réutilisés
-        view.setSelected(day.equals(selected_date));
-        if (day.equals(selected_date)) {
-            if (last_selected_view != null) {
-                last_selected_view.setSelected(false);
+        view.setSelected(day.equals(getSelectedDate()));
+        if (day.equals(getSelectedDate())) {
+            if (getLastSelectedView() != null) {
+                getLastSelectedView().setSelected(false);
             }
-            last_selected_view = view;
+            setLastSelectedView(view);
         }
 
         view.setOnClickListener(new View.OnClickListener() {
@@ -70,28 +73,17 @@ public class DayViewContainer extends ViewContainer {
                 Log.i("DayViewContainer", "onClick: " + day.toString());
 
                 // on mets a jour la date sélectionnée
-                selected_date = day;
-                if (last_selected_view != null) {
-                    last_selected_view.setSelected(false);
+                setSelectedDate(day);
+                if (getLastSelectedView() != null) {
+                    getLastSelectedView().setSelected(false);
                 }
-                last_selected_view = view;
+                setLastSelectedView(view);
                 v.setSelected(true);
 
                 // On envoi a la mainactivity le signal pour qu'elle mette a jour la liste des cours
-                if (instanceQuickSearch != null) {
-                    instanceQuickSearch.updateTimeTable();
-                } else {
-                    instanceMainActivity.updateTimeTable();
-                }
+                factory.updateTimeTable();
             }
         });
-    }
-
-    public static Date getSelectedDate() {
-        Calendar c = Calendar.getInstance();
-        c.set(selected_date.getYear(), selected_date.getMonthValue() - 1, selected_date.getDayOfMonth(), 0, 0, 0);
-        c.set(Calendar.MILLISECOND, 0);
-        return c.getTime();
     }
 
 }

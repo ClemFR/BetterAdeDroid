@@ -20,12 +20,15 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 
 import kotlin.Unit;
 import xyz.alpha_line.android.betterade.api.BetterAdeApi;
 import xyz.alpha_line.android.betterade.containers.DayViewContainer;
+import xyz.alpha_line.android.betterade.containers.DayViewFactory;
 import xyz.alphaline.mintimetablenew.MinTimeTableView;
 import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
 
@@ -35,10 +38,12 @@ public class QuickSearch extends AppCompatActivity {
     private ArrayList<ScheduleEntity> listeCours;
     private ActivityResultLauncher<Intent> itemSelectorResultLauncher;
     private WeekCalendarView calendarView;
-    private int typeRecherche = -1;
+    private int typeRecherche = -2;
     private String promosRecherche = "";
     private TextView monthText;
     private Date lastSelectedDate = null;
+    private DayViewFactory dayViewFactory;
+    public static final String TAG = "QuickSearch";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +52,25 @@ public class QuickSearch extends AppCompatActivity {
 
         ((TextView) findViewById(R.id.text_welcome)).setText("Recherche rapide");
 
+        // Init liste cours
+        listeCours = new ArrayList<>();
+        listeCours.add(new ScheduleEntity(
+                0,
+                "Cours",
+                Collections.singletonList("Salle"),
+                0,
+                "8:00",
+                "18:00",
+                "#88000000",
+                "#ffffff",
+                Collections.singletonList("Professeur"),
+                Collections.singletonList("Groupe")
+        ));
+
         // Init timetable
         timetable = findViewById(R.id.table);
         timetable.initTable(new String[]{""});
+        timetable.updateSchedules(listeCours);
 
         // Init calendar
         calendarView = findViewById(R.id.calendarView);
@@ -75,8 +96,8 @@ public class QuickSearch extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() != Activity.RESULT_OK) {
-                        if (typeRecherche == -1) {
-                            lancerItemSelector();
+                        if (typeRecherche == -2) { // -2 : on a pas encore sélectionné de promo que l'on annule
+                            finish();
                         }
                     }
 
@@ -100,15 +121,15 @@ public class QuickSearch extends AppCompatActivity {
     public void updateTimeTable() {
 
         // On regarde si la date sélectionnée est la même que la dernière fois
-        if (lastSelectedDate != null && lastSelectedDate.equals(DayViewContainer.getSelectedDate())) {
+        if (lastSelectedDate != null && lastSelectedDate.equals(dayViewFactory.getSelectedDate())) {
             return;
         }
 
-        Log.i("MainActivity", "updateTimeTable: last selected : " + lastSelectedDate);
-        Log.i("MainActivity", "updateTimeTable: selected      : " + DayViewContainer.getSelectedDate());
-        lastSelectedDate = DayViewContainer.getSelectedDate();
-        Log.i("MainActivity", "updateTimeTable: " + promosRecherche);
-        Log.i("MainActivity", "updateTimeTable: " + typeRecherche);
+        Log.i(TAG, "updateTimeTable: last selected : " + lastSelectedDate);
+        Log.i(TAG, "updateTimeTable: selected      : " + dayViewFactory.getSelectedDate());
+        lastSelectedDate = dayViewFactory.getSelectedDate();
+        Log.i(TAG, "updateTimeTable: " + promosRecherche);
+        Log.i(TAG, "updateTimeTable: " + typeRecherche);
 
         if (typeRecherche == -1) {
             return;
@@ -116,7 +137,7 @@ public class QuickSearch extends AppCompatActivity {
 
         BetterAdeApi.recupereAfficheCoursDay(
                 promosRecherche,
-                DayViewContainer.getSelectedDate(),
+                dayViewFactory.getSelectedDate(),
                 listeCours,
                 timetable,
                 typeRecherche,
@@ -130,6 +151,9 @@ public class QuickSearch extends AppCompatActivity {
 
     public void initCalendar() {
 
+        // On initialise le calendrier
+        dayViewFactory = new DayViewFactory(this::updateTimeTable);
+
         WeekDayBinder<DayViewContainer> dayBinder = new WeekDayBinder<DayViewContainer>() {
             @Override
             public void bind(@NonNull DayViewContainer dayView, WeekDay weekDay) {
@@ -141,7 +165,7 @@ public class QuickSearch extends AppCompatActivity {
             @NonNull
             @Override
             public DayViewContainer create(@NonNull View view) {
-                return new DayViewContainer(view, QuickSearch.this);
+                return dayViewFactory.createContainer(view);
             }
         };
 
@@ -188,5 +212,23 @@ public class QuickSearch extends AppCompatActivity {
                     monthText.setText(textMonth);
                     return Unit.INSTANCE;
                 });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        // lance automatiquement la recherche si on a déjà des promos sélectionnées
+        if (typeRecherche >= 0) {
+            if (hasFocus) {
+                timetable.initTable(new String[]{""});
+                updateTimeTable();
+            }
+        } else {
+            if (hasFocus) {
+                // On lance l'activité ItemSelector pour que l'utilisateur choisisse une promo
+                Intent intent = new Intent(this, ItemSelector.class);
+                itemSelectorResultLauncher.launch(intent);
+            }
+        }
     }
 }

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import xyz.alpha_line.android.betterade.containers.DayViewFactory;
 import xyz.alpha_line.android.betterade.util.InstallNotifier;
 import xyz.alphaline.mintimetablenew.MinTimeTableView;
 import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private Date lastSelectedDate = null;
     private boolean firstFocus = true;
     private boolean onCreate = false;
+    private DayViewFactory dayViewFactory;
 
 
     @Override
@@ -140,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void initCalendar() {
 
+        // On initialise le calendrier
+        dayViewFactory = new DayViewFactory(this::updateTimeTable);
+
         WeekDayBinder<DayViewContainer> dayBinder = new WeekDayBinder<DayViewContainer>() {
             @Override
             public void bind(@NonNull DayViewContainer dayView, WeekDay weekDay) {
@@ -151,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             @NonNull
             @Override
             public DayViewContainer create(@NonNull View view) {
-                return new DayViewContainer(view, MainActivity.this);
+                return dayViewFactory.createContainer(view);
             }
         };
 
@@ -203,13 +208,13 @@ public class MainActivity extends AppCompatActivity {
     public void updateTimeTable() {
 
         // On regarde si la date sélectionnée est la même que la dernière fois
-        if (lastSelectedDate != null && lastSelectedDate.equals(DayViewContainer.getSelectedDate())) {
+        if (lastSelectedDate != null && lastSelectedDate.equals(dayViewFactory.getSelectedDate())) {
             return;
         }
 
         Log.i("MainActivity", "updateTimeTable: last selected : " + lastSelectedDate);
-        Log.i("MainActivity", "updateTimeTable: selected      : " + DayViewContainer.getSelectedDate());
-        lastSelectedDate = DayViewContainer.getSelectedDate();
+        Log.i("MainActivity", "updateTimeTable: selected      : " + dayViewFactory.getSelectedDate());
+        lastSelectedDate = dayViewFactory.getSelectedDate();
         Log.i("MainActivity", "updateTimeTable: " + promosRecherche);
         Log.i("MainActivity", "updateTimeTable: " + typeRecherche);
 
@@ -219,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
         BetterAdeApi.recupereAfficheCoursDay(
                 promosRecherche,
-                DayViewContainer.getSelectedDate(),
+                dayViewFactory.getSelectedDate(),
                 listeCours,
                 timetable,
                 typeRecherche,

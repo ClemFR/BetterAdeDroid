@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".ItemSelector"
-    android:layout_margin="10dp"
-    >
+    android:layout_margin="10dp">
 
     <!-- Type de sélection -->
     <LinearLayout
@@ -68,32 +68,54 @@
         />
 
     <!-- Bouton de validation / annulation -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
         >
 
-        <Button
-            android:id="@+id/annuler"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/annuler"
-            android:textSize="20sp"
-            android:layout_marginEnd="15dp"
-            tools:ignore="ButtonStyle"
-            />
+            <androidx.constraintlayout.widget.Guideline
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:id="@+id/guidelineAnnuler"
+                app:layout_constraintGuide_percent="0.40"
+                android:orientation="vertical"
+                />
 
-        <Button
-            android:id="@+id/valider"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/valider"
-            android:textSize="20sp"
-            tools:ignore="ButtonStyle"
-            android:layout_marginStart="15dp"
-            />
-    </LinearLayout>
+        <androidx.constraintlayout.widget.Guideline
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:id="@+id/guidelineValider"
+                app:layout_constraintGuide_percent="0.60"
+                android:orientation="vertical"
+                />
+
+            <Button
+                android:id="@+id/annuler"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/annuler"
+                android:textSize="20sp"
+                android:layout_marginStart="15dp"
+                tools:ignore="ButtonStyle"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/guidelineAnnuler"
+                />
+
+            <Button
+                android:id="@+id/valider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/valider"
+                android:textSize="20sp"
+                tools:ignore="ButtonStyle"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/guidelineValider"
+                />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

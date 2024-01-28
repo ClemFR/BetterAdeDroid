@@ -1,6 +1,7 @@
 package xyz.alpha_line.android.betterade.util;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ public class FilteredArrayAdapter extends ArrayAdapter<String> {
         super(context, resourceId, objects);
         this.context = context;
         this.objects = objects;
+        Log.i("FilteredArrayAdapter", "FilteredArrayAdapter: creation nouveau adapter : " + this.hashCode());
     }
 
     @Override

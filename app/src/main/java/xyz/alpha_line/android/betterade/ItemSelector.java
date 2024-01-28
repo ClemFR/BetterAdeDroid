@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,6 +41,9 @@ public class ItemSelector extends AppCompatActivity {
 
     private List<String> liste;
     private EditText search;
+    private FilteredArrayAdapter adapter;
+    private String[] listeArray;
+    private boolean disableSpinner = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +58,23 @@ public class ItemSelector extends AppCompatActivity {
             finish();
         });
 
+        // Init du spinner
+        spinner = (Spinner) findViewById(R.id.spinner);
 
         // Init de la liste
-        liste = new ArrayList<>();
         listView = (ListView) findViewById(R.id.list_view);
+        if (savedInstanceState != null) {
+            String[] listeArray = savedInstanceState.getStringArray("liste");
+            int spinnerPosition = savedInstanceState.getInt("spinner");
+            disableSpinner = true;
+            spinner.setSelection(spinnerPosition);
+            liste = new ArrayList<>();
+            if (listeArray != null) {
+                Arrays.asList(listeArray).forEach(liste::add);
+            }
+        } else {
+            liste = new ArrayList<>();
+        }
 
         // Mise en place du système d'appui pour sélectionner un item
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -68,18 +85,22 @@ public class ItemSelector extends AppCompatActivity {
             }
         });
 
-        // Init du spinner
-        spinner = (Spinner) findViewById(R.id.spinner);
-
         // Détection si le spinner change de valeur
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 search.setText("");
+                Log.i("ItemSelector", "onItemSelected: " + position);
+                if (disableSpinner) {
+                    disableSpinner = false;
+                    Log.i("ItemSelector", "onItemSelected: Spinner désactivé");
+                    return;
+                }
 
                 // On essaye de charger la liste depuis le stockage
                 if (loadListeRessource(position, liste)) {
                     Log.i("ItemSelector", "onItemSelected: Liste chargée depuis le stockage");
+                    listeArray = liste.toArray(new String[0]);
                     initRechercheRapide();
                 } else {
                     Log.i("ItemSelector", "onItemSelected: Liste récupérée depuis l'API");
@@ -91,6 +112,7 @@ public class ItemSelector extends AppCompatActivity {
                         } else {
                             Log.i("ItemSelector", "onItemSelected: Impossible de sauvegarder la liste");
                         }
+                        listeArray = liste.toArray(new String[0]);
                     });
                     initRechercheRapide();
                 }
@@ -107,7 +129,9 @@ public class ItemSelector extends AppCompatActivity {
 
     private void initRechercheRapide() {
         // Init système recherche rapide
-        listView.setAdapter(new FilteredArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, liste));
+        Log.i("ItemSelector", "initRechercheRapide: " + liste.size());
+        adapter = new FilteredArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, liste);
+        listView.setAdapter(adapter);
         search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -221,12 +245,27 @@ public class ItemSelector extends AppCompatActivity {
             ois.close();
             fis.close();
 
-            liste.clear();
-            liste.addAll(newListe);
+            try {
+                liste.clear();
+                liste.addAll(newListe);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
             return true;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+
+    // Méthode sauvegarde dans bundle pour rotation écran
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putStringArray("liste", listeArray);
+        outState.putInt("spinner", spinner.getSelectedItemPosition());
+        spinner.setOnItemSelectedListener(null);
     }
 }

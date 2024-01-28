@@ -22,16 +22,22 @@
             />
 
         <com.kizitonwose.calendar.view.WeekCalendarView
+            android:layout_gravity="center_horizontal"
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="45dp"
             app:cv_dayViewResource="@layout/calendar_day_layout"
             />
 
-        <xyz.alphaline.mintimetablenew.MinTimeTableView
-            android:id="@+id/table"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content">
+
+            <xyz.alphaline.mintimetablenew.MinTimeTableView
+                android:id="@+id/table"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </ScrollView>
 
     </LinearLayout>
 

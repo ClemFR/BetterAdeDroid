@@ -101,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
             itemSelectorResultLauncher.launch(intent);
         });
 
+        ((TextView) findViewById(R.id.dateText)).setText(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy")));
+
         initCalendar();
 
         // On regarde si on a dans les préferences une date sélectionnée et une liste de promos sélectionnées

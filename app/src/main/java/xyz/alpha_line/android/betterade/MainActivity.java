@@ -23,10 +23,12 @@ import com.kizitonwose.calendar.view.WeekDayBinder;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import kotlin.Unit;
 import xyz.alpha_line.android.betterade.api.BetterAdeApi;
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             itemSelectorResultLauncher.launch(intent);
         });
 
-        ((TextView) findViewById(R.id.dateText)).setText(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy")));
+        ((TextView) findViewById(R.id.dateText)).setText(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy", Locale.FRANCE)));
 
         initCalendar();
 

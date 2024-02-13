@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kizitonwose.calendar.core.WeekDay;
 import com.kizitonwose.calendar.view.WeekCalendarView;
 import com.kizitonwose.calendar.view.WeekDayBinder;
@@ -44,6 +46,7 @@ public class QuickSearch extends AppCompatActivity {
     private Date lastSelectedDate = null;
     private DayViewFactory dayViewFactory;
     public static final String TAG = "QuickSearch";
+    private String lastSelectedPromos = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,21 +54,10 @@ public class QuickSearch extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ((TextView) findViewById(R.id.text_welcome)).setText("Recherche rapide");
+        ((ExtendedFloatingActionButton) findViewById(R.id.fab)).setText("Modif. Recherche");
 
         // Init liste cours
         listeCours = new ArrayList<>();
-        listeCours.add(new ScheduleEntity(
-                0,
-                "Cours",
-                Collections.singletonList("Salle"),
-                0,
-                "8:00",
-                "18:00",
-                "#88000000",
-                "#ffffff",
-                Collections.singletonList("Professeur"),
-                Collections.singletonList("Groupe")
-        ));
 
         // Init timetable
         timetable = findViewById(R.id.table);
@@ -122,7 +114,15 @@ public class QuickSearch extends AppCompatActivity {
 
         // On regarde si la date sélectionnée est la même que la dernière fois
         if (lastSelectedDate != null && lastSelectedDate.equals(dayViewFactory.getSelectedDate())) {
-            return;
+
+            // On regarde si la promo sélectionnée est la même que la dernière fois
+            if (lastSelectedPromos.equals(promosRecherche)) {
+                return;
+            }
+
+            // Même si la date est la même, on doit mettre à jour la liste des
+            // cours si la promo a changé
+            lastSelectedPromos = promosRecherche;
         }
 
         Log.i(TAG, "updateTimeTable: last selected : " + lastSelectedDate);

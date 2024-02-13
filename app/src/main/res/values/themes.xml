@@ -8,7 +8,6 @@
         <!-- Status bar = responsible for the background color. -->
         <item name="android:statusBarColor">#fef6fe</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
-
     </style>
 
     <style name="Theme.BetterAde" parent="Base.Theme.BetterAde" />

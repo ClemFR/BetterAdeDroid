@@ -34,6 +34,7 @@ public class ItemSelector extends AppCompatActivity {
     public static final String INTENT_LISTE_RESSOURCE = "xyz.alpha_line.android.betterade.ItemSelector.INTENT_LISTE_RESSOURCE";
 
     private static final String STORAGE_FILE_LOCATION = "listes_ressources";
+    private static final String TAG = "ItemSelector";
 
 
     private Spinner spinner;
@@ -41,7 +42,7 @@ public class ItemSelector extends AppCompatActivity {
 
     private List<String> liste;
     private EditText search;
-    private FilteredArrayAdapter adapter;
+    private ArrayAdapter<String> adapter;
     private String[] listeArray;
     private boolean disableSpinner = false;
 
@@ -130,7 +131,8 @@ public class ItemSelector extends AppCompatActivity {
     private void initRechercheRapide() {
         // Init système recherche rapide
         Log.i("ItemSelector", "initRechercheRapide: " + liste.size());
-        adapter = new FilteredArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, liste);
+        // adapter = new FilteredArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, liste);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_multiple_choice, liste);
         listView.setAdapter(adapter);
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -247,7 +249,12 @@ public class ItemSelector extends AppCompatActivity {
 
             try {
                 liste.clear();
-                liste.addAll(newListe);
+                // liste.addAll(newListe);
+                for (String s : newListe) {
+                    liste.add(s);
+                }
+                Log.i(TAG, "loadListeRessource: Rafraichissement de la liste");
+                runOnUiThread(() -> adapter.notifyDataSetChanged());
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;

@@ -18,6 +18,19 @@ public class CustomSchedule {
 
     public static final SimpleDateFormat HEURE_MINUTE_FORMAT = new SimpleDateFormat("HH:mm", Locale.FRANCE);
 
+    public static final String[] CHAINE_A_NETTOYER = {
+            "TD S.",
+            "TD R.",
+            "TD",
+            "TP S.",
+            "TP R.",
+            "TP",
+            "CM S.",
+            "CM R.",
+            "CM",
+            "PROJET"
+    };
+
     public static ScheduleEntity fromJSONObject(JSONObject jsonObject) throws JSONException {
         String titre = jsonObject.getString("summary");
 
@@ -92,6 +105,17 @@ public class CustomSchedule {
     }
 
     private static String generateColorFromHash(String toHash) {
+        // On nettoie la chaîne de caractères
+        for (String s : CHAINE_A_NETTOYER) {
+            // On supprime les occurrences de la chaîne de caractères
+            // case insensitive
+            toHash = toHash.replaceAll("(?i)" + s, "");
+        }
+
+        // On supprime les espaces multiples
+        toHash = toHash.replaceAll("\\s+", " ");
+
+        // Hashage de la chaîne de caractères
         int hash = toHash.hashCode();
         int r = (hash & 0xFF0000) >> 16;
         int g = (hash & 0x00FF00) >> 8;
@@ -100,6 +124,7 @@ public class CustomSchedule {
     }
 
     private static String textColor(String backgroundColor) {
+        // Couleur du texte (noir ou blanc) en fonction de la luminance de la couleur de fond
         int r = Integer.parseInt(backgroundColor.substring(3, 5), 16);
         int g = Integer.parseInt(backgroundColor.substring(5, 7), 16);
         int b = Integer.parseInt(backgroundColor.substring(7, 9), 16);

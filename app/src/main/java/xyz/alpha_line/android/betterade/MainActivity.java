@@ -244,8 +244,10 @@ public class MainActivity extends AppCompatActivity {
         itemSelectorResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    Log.i("MainActivity", "startListenerCallbackActiviteFille: " + result.getResultCode());
                     if (result.getResultCode() != Activity.RESULT_OK) {
                         if (typeRecherche == -1) {
+                            Log.i("MainActivity", "startListenerCallbackActiviteFille: Lancement ItemSelector (typeRecherche == -1, resultCode != OK)");
                             lancerItemSelector();
                         }
                     }
@@ -257,11 +259,13 @@ public class MainActivity extends AppCompatActivity {
                         promosRecherche = data.getStringExtra(ItemSelector.INTENT_LISTE_RESSOURCE);
 
                         if (typeRecherche == -1) {
+                            Log.i("MainActivity", "startListenerCallbackActiviteFille: Lancement ItemSelector (typeRecherche == -1, resultCode == OK)");
                             lancerItemSelector();
                             return;
                         }
 
                         // On sauvegarde les préférences
+                        Log.i("MainActivity", "startListenerCallbackActiviteFille: Sauvegarde des préférences");
                         SharedPreferences prefs = this.getPreferences(MODE_PRIVATE);
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString(PREFERENCES_PROMOS, promosRecherche);

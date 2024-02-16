@@ -89,6 +89,19 @@ public class QuickSearch extends AppCompatActivity {
                     if (result.getResultCode() != Activity.RESULT_OK) {
                         if (typeRecherche == -2) { // -2 : on a pas encore sélectionné de promo que l'on annule
                             finish();
+                        } else {
+                            // On recharge la dernière recherche avec un thread
+                            // Fix de gros porcs mais ça marche !!!
+                            new Thread(() -> {
+                                try {
+                                    Thread.sleep(1000);
+                                    runOnUiThread(() -> {
+                                        timetable.updateSchedules(listeCours);
+                                    });
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }).start();
                         }
                     }
 
@@ -103,6 +116,7 @@ public class QuickSearch extends AppCompatActivity {
                             return;
                         }
 
+                        Log.i(TAG, "startListenerCallbackActiviteFille: " + typeRecherche);
                         updateTimeTable();
                     }
                 }
@@ -232,6 +246,14 @@ public class QuickSearch extends AppCompatActivity {
                 Intent intent = new Intent(this, ItemSelector.class);
                 itemSelectorResultLauncher.launch(intent);
             }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (typeRecherche >= 0) {
+            updateTimeTable();
         }
     }
 }

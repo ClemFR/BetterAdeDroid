@@ -74,8 +74,7 @@ public class QuickSearch extends AppCompatActivity {
 
         // On initialise le bouton flottant qui lance l'activité ItemSelector
         findViewById(R.id.fab).setOnClickListener(v -> {
-            Intent intent = new Intent(this, ItemSelector.class);
-            itemSelectorResultLauncher.launch(intent);
+            lancerItemSelector();
         });
 
         findViewById(R.id.fab_rech_rapide).setVisibility(View.GONE);
@@ -146,7 +145,11 @@ public class QuickSearch extends AppCompatActivity {
 
     public void lancerItemSelector() {
         Intent intent = new Intent(this, ItemSelector.class);
-        startActivity(intent);
+        if (typeRecherche >= 0) {
+            intent.putExtra(ItemSelector.INTENT_DERNIERE_RECHERCHE_TYPE, typeRecherche);
+            Log.i(TAG, "lancerItemSelector: Dernier type de recherche : " + typeRecherche);
+        }
+        itemSelectorResultLauncher.launch(intent);
     }
 
     public void initCalendar() {

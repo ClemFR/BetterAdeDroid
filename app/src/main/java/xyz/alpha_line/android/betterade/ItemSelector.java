@@ -30,6 +30,7 @@ public class ItemSelector extends AppCompatActivity {
 
     public static final String INTENT_TYPE_RESSOURCE = "xyz.alpha_line.android.betterade.ItemSelector.INTENT_TYPE_RESSOURCE";
     public static final String INTENT_LISTE_RESSOURCE = "xyz.alpha_line.android.betterade.ItemSelector.INTENT_LISTE_RESSOURCE";
+    public static final String INTENT_DERNIERE_RECHERCHE_TYPE = "xyz.alpha_line.android.betterade.ItemSelector.INTENT_DERNIERE_RECHERCHE_TYPE";
 
     private static final String STORAGE_FILE_LOCATION = "listes_ressources";
     private static final String TAG = "ItemSelector";
@@ -73,6 +74,11 @@ public class ItemSelector extends AppCompatActivity {
             }
         } else {
             liste = new ArrayList<>();
+
+            // On mets le spinner sur la position passé dans l'intent
+            int spinnerPosition = getIntent().getIntExtra(INTENT_DERNIERE_RECHERCHE_TYPE, 0);
+            spinner.setSelection(spinnerPosition);
+            Log.i("ItemSelector", "onCreate: Spinner position " + spinnerPosition);
         }
 
         // Mise en place du système d'appui pour sélectionner un item

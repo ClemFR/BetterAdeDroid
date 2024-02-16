@@ -1,6 +1,5 @@
 package xyz.alpha_line.android.betterade;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 
 import xyz.alpha_line.android.betterade.api.BetterAdeApi;
-import xyz.alpha_line.android.betterade.util.FilteredArrayAdapter;
 
 public class ItemSelector extends AppCompatActivity {
 

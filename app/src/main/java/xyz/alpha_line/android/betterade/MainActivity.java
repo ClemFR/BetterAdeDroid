@@ -127,8 +127,10 @@ public class MainActivity extends AppCompatActivity {
         // lance automatiquement la recherche si on a déjà des promos sélectionnées
         if (typeRecherche != -1) {
             if (hasFocus && firstFocus) {
+                Log.i("MainActivity", "onWindowFocusChanged: Update TimeTable");
                 initTimeTable();
                 updateTimeTable();
+                firstFocus = false;
             }
         } else {
             // On lance l'activité ItemSelector pour que l'utilisateur choisisse une promo

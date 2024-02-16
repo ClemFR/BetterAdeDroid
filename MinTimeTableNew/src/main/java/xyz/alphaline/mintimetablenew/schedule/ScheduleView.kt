@@ -3,6 +3,7 @@ package xyz.alphaline.mintimetablenew.schedule
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -116,6 +117,15 @@ class ScheduleView(context: Context,
         binding.name.text = entity.scheduleName
         binding.room.text = entity.roomInfo.joinToString(", ") + " (" + entity.groups.joinToString(" / ") + ")"
         binding.professor.text = entity.professor.joinToString(", ")
+
+        if (entity.getProfessorItalic()) {
+            binding.professor.typeface = Typeface.defaultFromStyle(Typeface.ITALIC)
+        }
+
+        if (entity.getRoomItalic()) {
+            binding.room.typeface = Typeface.defaultFromStyle(Typeface.ITALIC)
+        }
+
 
         binding.name.setTextColor(Color.parseColor(entity.textColor))
         binding.room.setTextColor(Color.parseColor(entity.textColor))

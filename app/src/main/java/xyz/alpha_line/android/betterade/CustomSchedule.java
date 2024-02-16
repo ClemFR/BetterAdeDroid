@@ -32,6 +32,10 @@ public class CustomSchedule {
     };
 
     public static ScheduleEntity fromJSONObject(JSONObject jsonObject) throws JSONException {
+        boolean profItalic = false;
+        boolean salleItalic = false;
+        boolean groupeItalic = false;
+
         String titre = jsonObject.getString("summary");
 
         List<String> prof = new ArrayList<>();
@@ -41,6 +45,7 @@ public class CustomSchedule {
         }
         if (profs.length() == 0) {
             prof.add("Aucun enseignant");
+            profItalic = true;
         }
 
         List<String> salle = new ArrayList<>();
@@ -51,6 +56,7 @@ public class CustomSchedule {
             }
         } catch (JSONException e) {
             salle.add("Aucune salle");
+            salleItalic = true;
         }
 
         List<String> groupes = new ArrayList<>();
@@ -61,6 +67,7 @@ public class CustomSchedule {
             }
         } catch (JSONException e) {
             groupes.add("Aucun groupe");
+            groupeItalic = true;
         }
 
         Calendar heureDebut = getCalendarFromISODate(jsonObject.getString("start"));
@@ -79,7 +86,7 @@ public class CustomSchedule {
                 textColor(backgroundColor),
                 prof,
                 groupes
-        );
+        ).setProfessorItalic(profItalic).setRoomItalic(salleItalic);
     }
 
 

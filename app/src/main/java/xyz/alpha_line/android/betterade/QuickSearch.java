@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kizitonwose.calendar.core.WeekDay;
 import com.kizitonwose.calendar.view.WeekCalendarView;
 import com.kizitonwose.calendar.view.WeekDayBinder;
@@ -54,7 +53,6 @@ public class QuickSearch extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ((TextView) findViewById(R.id.text_welcome)).setText("Recherche rapide");
-        ((ExtendedFloatingActionButton) findViewById(R.id.fab)).setText("Modif. Recherche");
 
         // Init liste cours
         listeCours = new ArrayList<>();
@@ -71,14 +69,6 @@ public class QuickSearch extends AppCompatActivity {
 
         // Init système pour recevoir les intents de l'activité ItemSelector
         startListenerCallbackActiviteFille();
-
-        // On initialise le bouton flottant qui lance l'activité ItemSelector
-        findViewById(R.id.fab).setOnClickListener(v -> {
-            lancerItemSelector();
-        });
-
-        findViewById(R.id.fab_rech_rapide).setVisibility(View.GONE);
-
     }
 
 

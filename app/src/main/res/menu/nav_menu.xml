@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_rech_rapide"
+        android:title="Recherche rapide" />
+
+    <item
+        android:id="@+id/nav_modif_edt"
+        android:title="Modif. mon EDT" />
+
+    <item
+        android:id="@+id/nav_about"
+        android:title="A propos" />
+</menu>

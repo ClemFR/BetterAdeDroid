@@ -3,13 +3,18 @@ package xyz.alpha_line.android.betterade;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -17,9 +22,13 @@ import xyz.alpha_line.android.betterade.containers.DayViewFactory;
 import xyz.alpha_line.android.betterade.util.InstallNotifier;
 import xyz.alphaline.mintimetablenew.MinTimeTableView;
 import xyz.alphaline.mintimetablenew.model.ScheduleEntity;
+
+import com.google.android.material.navigation.NavigationView;
 import com.kizitonwose.calendar.core.WeekDay;
 import com.kizitonwose.calendar.view.WeekCalendarView;
 import com.kizitonwose.calendar.view.WeekDayBinder;
+
+import xyz.alpha_line.android.betterade.BuildConfig;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -36,7 +45,7 @@ import xyz.alpha_line.android.betterade.containers.DayViewContainer;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private DrawerLayout drawer;
     private TextView monthText;
     private WeekCalendarView calendarView;
     private MinTimeTableView timetable;
@@ -63,10 +72,11 @@ public class MainActivity extends AppCompatActivity {
         Log.i("MainActivity", "onCreate: ");
         onCreate = true;
 
+        setupToolbar();
+
         monthText = findViewById(R.id.monthText);
         calendarView = findViewById(R.id.calendarView);
         timetable = findViewById(R.id.table);
-
 
         if (savedInstanceState != null) {
             lastSelectedDate = (Date) savedInstanceState.getSerializable("lastSelectedDate");
@@ -98,13 +108,7 @@ public class MainActivity extends AppCompatActivity {
         // Init système pour recevoir les intents de l'activité ItemSelector
         startListenerCallbackActiviteFille();
 
-        // On initialise le bouton flottant qui lance l'activité ItemSelector
-        findViewById(R.id.fab).setOnClickListener(v -> {
-            Intent intent = new Intent(this, ItemSelector.class);
-            itemSelectorResultLauncher.launch(intent);
-        });
-
-        ((TextView) findViewById(R.id.dateText)).setText(LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy", Locale.FRANCE)));
+        ((TextView) findViewById(R.id.dateText)).setText(LocalDate.now().format(DateTimeFormatter.ofPattern("E dd MMM yyyy", Locale.FRANCE)));
 
         initCalendar();
 
@@ -114,11 +118,6 @@ public class MainActivity extends AppCompatActivity {
 
         promosRecherche = prefs.getString(PREFERENCES_PROMOS, "");
         typeRecherche = prefs.getInt(PREFERENCE_TYPE_RECHERCHE, -1);
-
-        findViewById(R.id.fab_rech_rapide).setOnClickListener(v -> {
-            Intent intent = new Intent(this, QuickSearch.class);
-            startActivity(intent);
-        });
     }
 
     @Override
@@ -305,5 +304,62 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).start();
         }
+    }
+
+    public void setupToolbar() {
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        myToolbar.setTitle("");
+        setSupportActionBar(myToolbar);
+
+        drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle =
+                new ActionBarDrawerToggle(this, drawer, myToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this::onOptionsItemSelected);
+
+    }
+
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        System.out.println("Item selected : " + item.getTitle());
+        if (item.getItemId() == R.id.nav_rech_rapide) {
+            Intent intent = new Intent(this, QuickSearch.class);
+            startActivity(intent);
+            drawer.closeDrawers();
+            return true;
+        } else if (item.getItemId() == R.id.nav_modif_edt) {
+            Intent intent = new Intent(this, ItemSelector.class);
+            itemSelectorResultLauncher.launch(intent);
+            drawer.closeDrawers();
+            return true;
+        } else if (item.getItemId() == R.id.nav_about) {
+            // Show popup
+            showAboutPopup();
+            drawer.closeDrawers();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showAboutPopup() {
+        AlertDialog.Builder popup_builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.popup_about, null);
+        TextView appver = customLayout.findViewById(R.id.app_version);
+        appver.setText("Version : " + BuildConfig.VERSION_NAME);
+        TextView buildver = customLayout.findViewById(R.id.build_ver);
+        buildver.setText("BuildVer : " + BuildConfig.VERSION_CODE);
+
+
+        popup_builder.setView(customLayout);
+        popup_builder.setPositiveButton("OK", (dialogInterface, i) -> {
+            dialogInterface.dismiss();
+        });
+
+        popup_builder.create().show();
     }
 }

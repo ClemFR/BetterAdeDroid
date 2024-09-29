@@ -8,6 +8,10 @@
     <string name="hint_search">Ecrire pour commencer la recherche</string>
     <string name="valider">Valider</string>
     <string name="annuler">Annuler</string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
+    <string name="about">Application permettant de visualiser l\'empoi du temps ADE à partir d\'une api \"maison\"\n\nApplication avec son api open source disponible sur https://github.com/ClemFR</string>
+    <string name="signature">Clément L. / 2023 – 2024</string>
 
     <string-array name="my_header_title">
         <item></item>
